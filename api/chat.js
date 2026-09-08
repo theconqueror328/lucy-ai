@@ -42,8 +42,7 @@ export default async function handler(req, res) {
 
 
     /*
-     * Create a new conversation
-     * with an automatic title.
+     * Create a new conversation.
      */
 
     let activeConversationId =
@@ -52,7 +51,6 @@ export default async function handler(req, res) {
 
     if (!activeConversationId) {
 
-
       const firstUserMessage =
         messages.find(
           message =>
@@ -60,50 +58,119 @@ export default async function handler(req, res) {
         );
 
 
-      let title =
+      const firstMessage =
         firstUserMessage?.content?.trim() ||
         "New conversation";
 
 
       /*
-       * Turn the first message into
-       * a short conversation title.
+       * Ask the AI for a short title.
        */
 
-      title =
-        title
-          .replace(/\s+/g, " ")
-          .replace(/[.!?]+$/g, "")
-          .slice(0, 50);
+      let title =
+        "New conversation";
 
 
-      /*
-       * If the message is very long,
-       * avoid cutting in the middle
-       * of a word.
-       */
+      try {
 
-      if (
-        title.length === 50
-      ) {
+        const titleResponse =
+          await fetch(
+            "https://api.openai.com/v1/responses",
+            {
 
-        const lastSpace =
-          title.lastIndexOf(" ");
+              method: "POST",
 
-        if (
-          lastSpace > 20
-        ) {
+              headers: {
 
-          title =
-            title.slice(
-              0,
-              lastSpace
-            );
+                "Content-Type":
+                  "application/json",
+
+                "Authorization":
+                  `Bearer ${process.env.OPENAI_API_KEY}`
+
+              },
+
+              body:
+                JSON.stringify({
+
+                  model:
+                    "gpt-5.6-luna",
+
+                  instructions:
+                    "Create a short, clear title for a chat conversation. " +
+                    "Return ONLY the title. " +
+                    "Use 2 to 6 words. " +
+                    "Do not use quotation marks. " +
+                    "Do not add punctuation at the end. " +
+                    "Capture the main topic of the user's message.",
+
+                  input:
+                    firstMessage
+
+                })
+
+            }
+          );
+
+
+        const titleData =
+          await titleResponse.json();
+
+
+        if (titleResponse.ok) {
+
+          const generatedTitle =
+            (titleData.output || [])
+              .flatMap(
+                item =>
+                  item.content || []
+              )
+              .filter(
+                item =>
+                  item.type ===
+                  "output_text"
+              )
+              .map(
+                item =>
+                  item.text || ""
+              )
+              .join("")
+              .trim();
+
+
+          if (generatedTitle) {
+
+            title =
+              generatedTitle
+                .replace(
+                  /^["']|["']$/g,
+                  ""
+                )
+                .replace(
+                  /[.!?]+$/g,
+                  ""
+                )
+                .trim()
+                .slice(0, 60);
+
+          }
 
         }
 
+      } catch (titleError) {
+
+        console.error(
+          "Title generation error:",
+          titleError
+        );
+
       }
 
+
+
+      /*
+       * Save the conversation.
+       */
 
       const {
         data: conversation,
@@ -200,7 +267,7 @@ export default async function handler(req, res) {
 
 
     /*
-     * Send the conversation to OpenAI.
+     * Send the conversation to LUCY.
      */
 
     const response =
@@ -227,7 +294,6 @@ export default async function handler(req, res) {
               model:
                 "gpt-5.6-luna",
 
-
               instructions:
                 "You are LUCY, a personal AI assistant. " +
                 "Your name is LUCY. When asked who you are, say you are LUCY. " +
@@ -239,7 +305,6 @@ export default async function handler(req, res) {
                 "Do not pretend to be human. " +
                 "Give safe and age-appropriate answers.",
 
-
               input:
                 messages
 
@@ -247,7 +312,6 @@ export default async function handler(req, res) {
 
         }
       );
-
 
 
     const data =
@@ -277,7 +341,7 @@ export default async function handler(req, res) {
 
 
     /*
-     * Extract LUCY's text response.
+     * Extract LUCY's response.
      */
 
     const reply =
@@ -348,10 +412,6 @@ export default async function handler(req, res) {
     }
 
 
-
-    /*
-     * Return the response.
-     */
 
     return res.status(200).json({
 
