@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>LUCY AI</title>
 
   <style>
@@ -17,6 +18,7 @@
       background: #0b0b12;
       color: white;
       min-height: 100vh;
+
       display: flex;
       justify-content: center;
       align-items: center;
@@ -27,7 +29,9 @@
       max-width: 500px;
       height: 100vh;
       max-height: 850px;
+
       background: #12121c;
+
       display: flex;
       flex-direction: column;
     }
@@ -35,6 +39,7 @@
     .header {
       padding: 20px;
       text-align: center;
+
       border-bottom: 1px solid #29293a;
     }
 
@@ -52,15 +57,21 @@
     .chat {
       flex: 1;
       padding: 20px;
+
       overflow-y: auto;
     }
 
     .message {
       padding: 12px 15px;
+
       border-radius: 15px;
+
       margin-bottom: 12px;
+
       max-width: 85%;
+
       line-height: 1.5;
+
       white-space: pre-wrap;
       word-wrap: break-word;
     }
@@ -77,19 +88,29 @@
 
     .input-area {
       display: flex;
+
       gap: 10px;
+
       padding: 15px;
+
       border-top: 1px solid #29293a;
     }
 
     input {
       flex: 1;
+
       padding: 14px;
+
       border: none;
+
       border-radius: 12px;
+
       background: #202031;
+
       color: white;
+
       outline: none;
+
       font-size: 15px;
     }
 
@@ -99,16 +120,27 @@
 
     button {
       padding: 14px 18px;
+
       border: none;
+
       border-radius: 12px;
+
       background: #6c63ff;
+
       color: white;
+
       font-weight: bold;
+
       cursor: pointer;
     }
 
     button:active {
       transform: scale(0.97);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
   </style>
 </head>
@@ -118,9 +150,17 @@
   <div class="app">
 
     <div class="header">
-      <div class="logo">LUCY 🤖</div>
-      <div class="status">Your AI assistant</div>
+
+      <div class="logo">
+        LUCY 🤖
+      </div>
+
+      <div class="status">
+        Your AI assistant
+      </div>
+
     </div>
+
 
     <div class="chat" id="chat">
 
@@ -132,15 +172,20 @@
 
     </div>
 
+
     <div class="input-area">
 
       <input
         id="messageInput"
         type="text"
         placeholder="Message LUCY..."
+        autocomplete="off"
       >
 
-      <button onclick="sendMessage()">
+      <button
+        id="sendButton"
+        onclick="sendMessage()"
+      >
         Send
       </button>
 
@@ -151,8 +196,11 @@
 
   <script>
 
-    // LUCY's conversation memory
-    const conversation = [];
+    // Conversation messages currently visible in the chat.
+    let conversation = [];
+
+    // Supabase conversation ID returned by our server.
+    let conversationId = null;
 
 
     async function sendMessage() {
@@ -163,16 +211,20 @@
       const chat =
         document.getElementById("chat");
 
+      const sendButton =
+        document.getElementById("sendButton");
+
       const message =
         input.value.trim();
 
 
+      // Don't send empty messages.
       if (!message) {
         return;
       }
 
 
-      // Show user's message
+      // Show the user's message.
       const userMessage =
         document.createElement("div");
 
@@ -185,18 +237,22 @@
       chat.appendChild(userMessage);
 
 
-      // Clear input
+      // Clear the input.
       input.value = "";
 
 
-      // Save user's message
+      // Temporarily disable sending.
+      sendButton.disabled = true;
+
+
+      // Add the user's message to the conversation.
       conversation.push({
         role: "user",
         content: message
       });
 
 
-      // Thinking message
+      // Show thinking message.
       const thinkingMessage =
         document.createElement("div");
 
@@ -209,6 +265,7 @@
       chat.appendChild(thinkingMessage);
 
 
+      // Scroll to the latest message.
       chat.scrollTop =
         chat.scrollHeight;
 
@@ -226,7 +283,13 @@
             },
 
             body: JSON.stringify({
-              messages: conversation
+
+              messages:
+                conversation,
+
+              conversationId:
+                conversationId
+
             })
 
           });
@@ -236,6 +299,7 @@
           await response.json();
 
 
+        // Handle server errors.
         if (!response.ok) {
 
           thinkingMessage.textContent =
@@ -246,37 +310,61 @@
         }
 
 
-        // Show LUCY's response
+        // Save the conversation ID.
+        if (data.conversationId) {
+
+          conversationId =
+            data.conversationId;
+
+        }
+
+
+        // Show LUCY's response.
         thinkingMessage.textContent =
           data.reply ||
           "LUCY didn't receive a response.";
 
 
-        // Save LUCY's response
+        // Save LUCY's response locally.
         conversation.push({
+
           role: "assistant",
-          content: data.reply
+
+          content:
+            data.reply
+
         });
 
 
       } catch (error) {
 
-        console.error(error);
+        console.error(
+          "Chat error:",
+          error
+        );
+
 
         thinkingMessage.textContent =
-          error.message ||
           "Could not reach LUCY's server.";
+
+      } finally {
+
+        // Allow another message to be sent.
+        sendButton.disabled = false;
+
+        input.focus();
 
       }
 
 
+      // Keep the newest message visible.
       chat.scrollTop =
         chat.scrollHeight;
 
     }
 
 
-    // Press Enter to send
+    // Press Enter to send a message.
     document
       .getElementById("messageInput")
       .addEventListener(
@@ -284,7 +372,11 @@
         function(event) {
 
           if (event.key === "Enter") {
+
+            event.preventDefault();
+
             sendMessage();
+
           }
 
         }
