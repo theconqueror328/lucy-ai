@@ -27,15 +27,14 @@ export default async function handler(req, res) {
 
         headers: {
           "Content-Type": "application/json",
-          "Authorization":
-            `Bearer ${process.env.OPENAI_API_KEY}`
+          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
         },
 
         body: JSON.stringify({
           model: "gpt-5.6-luna",
 
           instructions:
-            "You are LUCY, a smart, friendly, helpful AI assistant. " +
+            "You are LUCY, a smart, friendly and helpful AI assistant. " +
             "Be conversational, clear, honest and respectful. " +
             "Explain difficult things simply. " +
             "Give useful and age-appropriate answers.",
@@ -69,7 +68,7 @@ export default async function handler(req, res) {
     return res.status(500).json({
       error:
         error.message ||
-        "Something went wrong."
+        "Something went wrong on LUCY's server."
     });
   }
 }
