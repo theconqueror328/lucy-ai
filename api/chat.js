@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
     if (!process.env.OPENAI_API_KEY) {
       return res.status(500).json({
-        error: "OPENAI_API_KEY is not configured in Vercel."
+        error: "OPENAI_API_KEY is missing in Vercel."
       });
     }
 
@@ -24,51 +24,60 @@ export default async function handler(req, res) {
       "https://api.openai.com/v1/responses",
       {
         method: "POST",
-
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
         },
-
         body: JSON.stringify({
           model: "gpt-5.6-luna",
-
-          instructions:
-            "You are LUCY, a smart, friendly and helpful AI assistant. " +
-            "Be conversational, clear, honest and respectful. " +
-            "Explain difficult things simply. " +
-            "Give useful and age-appropriate answers.",
-
           input: message
         })
       }
     );
 
-    const data = await response.json();
+    const raw = await response.text();
+
+    console.log("OPENAI STATUS:", response.status);
+    console.log("OPENAI RESPONSE:", raw);
 
     if (!response.ok) {
-      console.error("OpenAI error:", data);
-
       return res.status(response.status).json({
+        error: `OpenAI HTTP ${response.status}: ${raw}`
+      });
+    }
+
+    let data;
+
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      return res.status(500).json({
+        error: "OpenAI returned invalid JSON."
+      });
+    }
+
+    const reply = (data.output || [])
+      .flatMap(item => item.content || [])
+      .filter(item => item.type === "output_text")
+      .map(item => item.text || "")
+      .join("");
+
+    if (!reply) {
+      return res.status(500).json({
         error:
-          data?.error?.message ||
-          "OpenAI returned an error."
+          "OpenAI responded successfully, but LUCY found no text in the response."
       });
     }
 
     return res.status(200).json({
-      reply:
-        data.output_text ||
-        "LUCY couldn't generate a response."
+      reply
     });
 
   } catch (error) {
-    console.error("Server error:", error);
+    console.error("LUCY SERVER ERROR:", error);
 
     return res.status(500).json({
-      error:
-        error.message ||
-        "Something went wrong on LUCY's server."
+      error: `Server error: ${error.message}`
     });
   }
 }
