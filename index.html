@@ -1,237 +1,534 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>LUCY AI</title>
 
+
   <style>
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
+
     body {
+
       font-family: Arial, sans-serif;
+
       background: #0b0b12;
+
       color: white;
+
       min-height: 100vh;
+
       display: flex;
+
       justify-content: center;
+
       align-items: center;
+
     }
+
 
     .app {
+
       width: 100%;
+
       max-width: 500px;
+
       height: 100vh;
+
       max-height: 850px;
+
       background: #12121c;
+
       display: flex;
+
       flex-direction: column;
+
       position: relative;
+
     }
+
 
     .header {
+
       padding: 15px 20px;
+
       text-align: center;
+
       border-bottom: 1px solid #29293a;
+
       position: relative;
+
     }
+
 
     .logo {
+
       font-size: 28px;
+
       font-weight: bold;
+
     }
+
 
     .status {
+
       color: #8f8f9f;
+
       font-size: 13px;
+
       margin-top: 5px;
+
     }
 
+
     .new-chat-button {
+
       position: absolute;
+
       right: 12px;
+
       top: 15px;
 
       padding: 8px 10px;
 
       border: none;
+
       border-radius: 9px;
 
       background: #292943;
+
       color: white;
 
       font-size: 12px;
+
       font-weight: bold;
 
       cursor: pointer;
+
     }
+
 
     .new-chat-button:hover {
+
       background: #353552;
+
     }
+
 
     .new-chat-button:active {
+
       transform: scale(0.96);
+
     }
+
 
     .chat-list {
+
       border-bottom: 1px solid #29293a;
+
       padding: 12px;
-      max-height: 190px;
+
+      max-height: 220px;
+
       overflow-y: auto;
+
     }
+
 
     .chat-list-header {
+
       display: flex;
+
       justify-content: space-between;
+
       align-items: center;
+
       margin-bottom: 8px;
+
       padding: 0 5px;
+
     }
+
 
     .chat-list-title {
+
       font-size: 13px;
+
       color: #8f8f9f;
+
       font-weight: bold;
+
     }
+
 
     .refresh-button {
-      background: transparent;
-      color: #8f8f9f;
-      padding: 3px 7px;
-      font-size: 16px;
-    }
-
-    .refresh-button:hover {
-      color: white;
-      background: #202031;
-    }
-
-    .conversation-item {
-      width: 100%;
-      padding: 11px 12px;
-      margin-bottom: 6px;
 
       border: none;
+
+      background: transparent;
+
+      color: #8f8f9f;
+
+      padding: 3px 7px;
+
+      font-size: 16px;
+
+      cursor: pointer;
+
+      border-radius: 6px;
+
+    }
+
+
+    .refresh-button:hover {
+
+      color: white;
+
+      background: #202031;
+
+    }
+
+
+    .conversation-row {
+
+      display: flex;
+
+      gap: 6px;
+
+      margin-bottom: 6px;
+
+      width: 100%;
+
+    }
+
+
+    .conversation-item {
+
+      flex: 1;
+
+      min-width: 0;
+
+      padding: 11px 12px;
+
+      border: none;
+
       border-radius: 10px;
 
       background: #1c1c2a;
+
       color: white;
 
       text-align: left;
+
       font-size: 13px;
 
       cursor: pointer;
 
       overflow: hidden;
+
       text-overflow: ellipsis;
+
       white-space: nowrap;
 
       transition: 0.15s;
+
     }
+
 
     .conversation-item:hover {
+
       background: #25253a;
+
     }
+
 
     .conversation-item.active {
+
       background: #36365a;
+
       box-shadow: inset 3px 0 0 #6c63ff;
+
     }
+
 
     .conversation-item:active {
+
       transform: scale(0.99);
+
     }
+
+
+    .rename-button {
+
+      width: 42px;
+
+      flex-shrink: 0;
+
+      border: none;
+
+      border-radius: 10px;
+
+      background: #292943;
+
+      color: white;
+
+      cursor: pointer;
+
+      font-size: 14px;
+
+      transition: 0.15s;
+
+    }
+
+
+    .rename-button:hover {
+
+      background: #353552;
+
+    }
+
+
+    .rename-button:active {
+
+      transform: scale(0.95);
+
+    }
+
+
+    .rename-button:disabled {
+
+      opacity: 0.5;
+
+      cursor: not-allowed;
+
+    }
+
 
     .empty-chats {
+
       color: #77778a;
+
       font-size: 13px;
+
       padding: 8px 5px;
+
     }
+
 
     .chat {
+
       flex: 1;
+
       padding: 20px;
+
       overflow-y: auto;
+
     }
+
 
     .message {
+
       padding: 12px 15px;
+
       border-radius: 15px;
+
       margin-bottom: 12px;
+
       max-width: 85%;
+
       line-height: 1.5;
+
       white-space: pre-wrap;
+
       word-wrap: break-word;
+
     }
+
 
     .lucy {
+
       background: #202031;
+
       margin-right: auto;
+
     }
+
 
     .user {
+
       background: #36365a;
+
       margin-left: auto;
+
     }
+
 
     .input-area {
+
       display: flex;
+
       gap: 10px;
+
       padding: 15px;
+
       border-top: 1px solid #29293a;
+
     }
+
 
     input {
+
       flex: 1;
+
       padding: 14px;
+
       border: none;
+
       border-radius: 12px;
+
       background: #202031;
+
       color: white;
+
       outline: none;
+
       font-size: 15px;
+
     }
+
 
     input::placeholder {
+
       color: #77778a;
+
     }
+
 
     .send-button {
+
       padding: 14px 18px;
+
       border: none;
+
       border-radius: 12px;
+
       background: #6c63ff;
+
       color: white;
+
       font-weight: bold;
+
       cursor: pointer;
+
     }
+
 
     .send-button:hover {
+
       background: #7a72ff;
+
     }
+
 
     .send-button:active {
+
       transform: scale(0.97);
+
     }
 
+
     .send-button:disabled {
+
       opacity: 0.6;
+
       cursor: not-allowed;
+
     }
+
+
+    @media (max-width: 520px) {
+
+      body {
+
+        align-items: stretch;
+
+      }
+
+
+      .app {
+
+        max-width: none;
+
+        max-height: none;
+
+      }
+
+
+      .header {
+
+        padding: 14px 15px;
+
+      }
+
+
+      .logo {
+
+        font-size: 25px;
+
+      }
+
+
+      .chat {
+
+        padding: 15px;
+
+      }
+
+
+      .input-area {
+
+        padding: 10px;
+
+      }
+
+
+      .new-chat-button {
+
+        right: 8px;
+
+        top: 12px;
+
+      }
+
+    }
+
   </style>
+
 </head>
+
 
 <body>
 
+
   <div class="app">
 
+
     <div class="header">
+
 
       <button
         class="new-chat-button"
@@ -240,24 +537,31 @@
         ＋ New Chat
       </button>
 
+
       <div class="logo">
         LUCY 🤖
       </div>
+
 
       <div class="status">
         Your AI assistant
       </div>
 
+
     </div>
+
 
 
     <div class="chat-list">
 
+
       <div class="chat-list-header">
+
 
         <div class="chat-list-title">
           💬 Chats
         </div>
+
 
         <button
           class="refresh-button"
@@ -266,6 +570,7 @@
         >
           ↻
         </button>
+
 
       </div>
 
@@ -278,24 +583,37 @@
 
       </div>
 
+
     </div>
 
 
-    <div class="chat" id="chat">
+
+    <div
+      class="chat"
+      id="chat"
+    >
+
 
       <div
         class="message lucy"
         id="welcomeMessage"
       >
+
         Hi! I'm LUCY. 👋
+
         <br>
+
         I'm ready to chat with you.
+
       </div>
+
 
     </div>
 
 
+
     <div class="input-area">
+
 
       <input
         id="messageInput"
@@ -303,6 +621,7 @@
         placeholder="Message LUCY..."
         autocomplete="off"
       >
+
 
       <button
         class="send-button"
@@ -312,61 +631,98 @@
         Send
       </button>
 
+
     </div>
+
 
   </div>
 
 
+
   <script>
+
 
     let conversation = [];
 
     let conversationId = null;
 
 
-    function addMessage(role, content) {
+
+    function addMessage(
+      role,
+      content
+    ) {
+
 
       const chat =
-        document.getElementById("chat");
+        document.getElementById(
+          "chat"
+        );
+
 
       const message =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
+
 
       message.className =
         "message " +
-        (role === "user"
-          ? "user"
-          : "lucy");
+        (
+          role === "user"
+            ? "user"
+            : "lucy"
+        );
+
 
       message.textContent =
         content;
 
-      chat.appendChild(message);
+
+      chat.appendChild(
+        message
+      );
+
 
       chat.scrollTop =
         chat.scrollHeight;
+
     }
+
 
 
     function showWelcomeMessage() {
 
+
       const chat =
-        document.getElementById("chat");
+        document.getElementById(
+          "chat"
+        );
+
 
       chat.innerHTML = `
+
         <div
           class="message lucy"
           id="welcomeMessage"
         >
+
           Hi! I'm LUCY. 👋
+
           <br>
+
           I'm ready to chat with you.
+
         </div>
+
       `;
+
     }
 
 
+
     function highlightActiveConversation() {
+
 
       const buttons =
         document.querySelectorAll(
@@ -374,27 +730,43 @@
         );
 
 
-      buttons.forEach(button => {
+      buttons.forEach(
+        button => {
 
-        if (
-          String(button.dataset.id) ===
-          String(conversationId)
-        ) {
 
-          button.classList.add("active");
+          if (
+            String(
+              button.dataset.id
+            ) ===
+            String(
+              conversationId
+            )
+          ) {
 
-        } else {
 
-          button.classList.remove("active");
+            button.classList.add(
+              "active"
+            );
+
+
+          } else {
+
+
+            button.classList.remove(
+              "active"
+            );
+
+          }
 
         }
-
-      });
+      );
 
     }
 
 
+
     async function loadConversations() {
+
 
       const list =
         document.getElementById(
@@ -403,6 +775,7 @@
 
 
       try {
+
 
         const response =
           await fetch(
@@ -416,13 +789,18 @@
 
         if (!response.ok) {
 
+
           list.innerHTML = `
+
             <div class="empty-chats">
               Could not load chats.
             </div>
+
           `;
 
+
           return;
+
         }
 
 
@@ -430,69 +808,256 @@
           data.conversations || [];
 
 
-        if (conversations.length === 0) {
+        if (
+          conversations.length === 0
+        ) {
+
 
           list.innerHTML = `
+
             <div class="empty-chats">
               No conversations yet.
             </div>
+
           `;
 
+
           return;
+
         }
 
 
         list.innerHTML = "";
 
 
-        conversations.forEach(item => {
+        conversations.forEach(
+          item => {
 
-          const button =
-            document.createElement("button");
 
-          button.className =
-            "conversation-item";
+            const row =
+              document.createElement(
+                "div"
+              );
 
-          button.dataset.id =
-            item.id;
 
-          button.textContent =
-            "💬 " +
-            (
-              item.title ||
-              "New conversation"
+            row.className =
+              "conversation-row";
+
+
+
+            const button =
+              document.createElement(
+                "button"
+              );
+
+
+            button.className =
+              "conversation-item";
+
+
+            button.dataset.id =
+              item.id;
+
+
+            button.textContent =
+              "💬 " +
+              (
+                item.title ||
+                "New conversation"
+              );
+
+
+            button.onclick =
+              function() {
+
+
+                openConversation(
+                  item.id
+                );
+
+              };
+
+
+
+            const renameButton =
+              document.createElement(
+                "button"
+              );
+
+
+            renameButton.className =
+              "rename-button";
+
+
+            renameButton.textContent =
+              "✏️";
+
+
+            renameButton.title =
+              "Rename conversation";
+
+
+            renameButton.setAttribute(
+              "aria-label",
+              "Rename conversation"
             );
 
 
-          button.onclick =
-            function() {
 
-              openConversation(
-                item.id
-              );
-
-            };
+            renameButton.onclick =
+              async function(
+                event
+              ) {
 
 
-          list.appendChild(button);
+                event.stopPropagation();
 
-        });
+
+                const currentTitle =
+                  item.title ||
+                  "New conversation";
+
+
+                const newTitle =
+                  prompt(
+                    "Enter a new name for this conversation:",
+                    currentTitle
+                  );
+
+
+                if (
+                  newTitle === null ||
+                  !newTitle.trim()
+                ) {
+
+                  return;
+
+                }
+
+
+                try {
+
+
+                  renameButton.disabled =
+                    true;
+
+
+                  const response =
+                    await fetch(
+                      "/api/rename-conversation",
+                      {
+
+                        method: "PATCH",
+
+                        headers: {
+
+                          "Content-Type":
+                            "application/json"
+
+                        },
+
+                        body:
+                          JSON.stringify({
+
+                            conversationId:
+                              item.id,
+
+                            title:
+                              newTitle.trim()
+
+                          })
+
+                      }
+                    );
+
+
+                  const data =
+                    await response.json();
+
+
+                  if (!response.ok) {
+
+
+                    alert(
+                      data.error ||
+                      "Could not rename conversation."
+                    );
+
+
+                    return;
+
+                  }
+
+
+                  await loadConversations();
+
+
+                } catch (
+                  error
+                ) {
+
+
+                  console.error(
+                    "Rename error:",
+                    error
+                  );
+
+
+                  alert(
+                    "Could not reach the server."
+                  );
+
+
+                } finally {
+
+
+                  renameButton.disabled =
+                    false;
+
+                }
+
+              };
+
+
+
+            row.appendChild(
+              button
+            );
+
+
+            row.appendChild(
+              renameButton
+            );
+
+
+            list.appendChild(
+              row
+            );
+
+          }
+        );
 
 
         highlightActiveConversation();
 
 
-      } catch (error) {
+      } catch (
+        error
+      ) {
+
 
         console.error(
           "Could not load conversations:",
           error
         );
 
+
         list.innerHTML = `
+
           <div class="empty-chats">
             Could not reach the server.
           </div>
+
         `;
 
       }
@@ -500,7 +1065,9 @@
     }
 
 
+
     async function loadConversation() {
+
 
       const savedId =
         localStorage.getItem(
@@ -509,7 +1076,9 @@
 
 
       if (!savedId) {
+
         return;
+
       }
 
 
@@ -524,9 +1093,14 @@
     }
 
 
-    async function openConversation(id) {
 
-      conversationId = id;
+    async function openConversation(
+      id
+    ) {
+
+
+      conversationId =
+        id;
 
 
       localStorage.setItem(
@@ -539,7 +1113,9 @@
 
 
       const chat =
-        document.getElementById("chat");
+        document.getElementById(
+          "chat"
+        );
 
 
       chat.innerHTML = "";
@@ -550,10 +1126,13 @@
 
       try {
 
+
         const response =
           await fetch(
             "/api/history?conversationId=" +
-            encodeURIComponent(id)
+            encodeURIComponent(
+              id
+            )
           );
 
 
@@ -563,13 +1142,16 @@
 
         if (!response.ok) {
 
+
           addMessage(
             "lucy",
             data.error ||
             "Could not load this conversation."
           );
 
+
           return;
+
         }
 
 
@@ -578,37 +1160,55 @@
 
 
         conversation =
-          messages.map(message => ({
-            role: message.role,
-            content: message.content
-          }));
+          messages.map(
+            message => ({
+
+              role:
+                message.role,
+
+              content:
+                message.content
+
+            })
+          );
 
 
-        if (messages.length === 0) {
+        if (
+          messages.length === 0
+        ) {
+
 
           showWelcomeMessage();
+
 
           return;
 
         }
 
 
-        messages.forEach(message => {
-
-          addMessage(
-            message.role,
-            message.content
-          );
-
-        });
+        messages.forEach(
+          message => {
 
 
-      } catch (error) {
+            addMessage(
+              message.role,
+              message.content
+            );
+
+          }
+        );
+
+
+      } catch (
+        error
+      ) {
+
 
         console.error(
           "Could not open conversation:",
           error
         );
+
 
         addMessage(
           "lucy",
@@ -620,9 +1220,13 @@
     }
 
 
+
     function startNewChat() {
 
-      conversationId = null;
+
+      conversationId =
+        null;
+
 
       conversation = [];
 
@@ -647,15 +1251,21 @@
     }
 
 
+
     async function sendMessage() {
+
 
       const input =
         document.getElementById(
           "messageInput"
         );
 
+
       const chat =
-        document.getElementById("chat");
+        document.getElementById(
+          "chat"
+        );
+
 
       const sendButton =
         document.getElementById(
@@ -668,7 +1278,9 @@
 
 
       if (!message) {
+
         return;
+
       }
 
 
@@ -679,7 +1291,9 @@
 
 
       if (welcomeMessage) {
+
         welcomeMessage.remove();
+
       }
 
 
@@ -691,7 +1305,9 @@
 
       input.value = "";
 
-      sendButton.disabled = true;
+
+      sendButton.disabled =
+        true;
 
 
       conversation.push({
@@ -704,7 +1320,9 @@
 
 
       const thinkingMessage =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
 
 
       thinkingMessage.className =
@@ -726,6 +1344,7 @@
 
       try {
 
+
         const response =
           await fetch(
             "/api/chat",
@@ -734,19 +1353,22 @@
               method: "POST",
 
               headers: {
+
                 "Content-Type":
                   "application/json"
+
               },
 
-              body: JSON.stringify({
+              body:
+                JSON.stringify({
 
-                messages:
-                  conversation,
+                  messages:
+                    conversation,
 
-                conversationId:
-                  conversationId
+                  conversationId:
+                    conversationId
 
-              })
+                })
 
             }
           );
@@ -758,18 +1380,24 @@
 
         if (!response.ok) {
 
+
           thinkingMessage.textContent =
             data.error ||
             "Something went wrong.";
 
+
           conversation.pop();
+
 
           return;
 
         }
 
 
-        if (data.conversationId) {
+        if (
+          data.conversationId
+        ) {
+
 
           conversationId =
             data.conversationId;
@@ -798,13 +1426,16 @@
         });
 
 
-        loadConversations();
+        await loadConversations();
 
 
         highlightActiveConversation();
 
 
-      } catch (error) {
+      } catch (
+        error
+      ) {
+
 
         console.error(
           "Chat error:",
@@ -820,7 +1451,10 @@
 
       } finally {
 
-        sendButton.disabled = false;
+
+        sendButton.disabled =
+          false;
+
 
         input.focus();
 
@@ -833,6 +1467,7 @@
     }
 
 
+
     document
       .getElementById(
         "messageInput"
@@ -841,9 +1476,14 @@
         "keydown",
         function(event) {
 
-          if (event.key === "Enter") {
+
+          if (
+            event.key === "Enter"
+          ) {
+
 
             event.preventDefault();
+
 
             sendMessage();
 
@@ -853,11 +1493,15 @@
       );
 
 
+
     loadConversation();
 
     loadConversations();
 
+
   </script>
 
+
 </body>
+
 </html>
