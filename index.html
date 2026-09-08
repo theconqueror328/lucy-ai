@@ -18,7 +18,6 @@
       background: #0b0b12;
       color: white;
       min-height: 100vh;
-
       display: flex;
       justify-content: center;
       align-items: center;
@@ -29,9 +28,7 @@
       max-width: 500px;
       height: 100vh;
       max-height: 850px;
-
       background: #12121c;
-
       display: flex;
       flex-direction: column;
     }
@@ -39,7 +36,6 @@
     .header {
       padding: 20px;
       text-align: center;
-
       border-bottom: 1px solid #29293a;
     }
 
@@ -57,21 +53,15 @@
     .chat {
       flex: 1;
       padding: 20px;
-
       overflow-y: auto;
     }
 
     .message {
       padding: 12px 15px;
-
       border-radius: 15px;
-
       margin-bottom: 12px;
-
       max-width: 85%;
-
       line-height: 1.5;
-
       white-space: pre-wrap;
       word-wrap: break-word;
     }
@@ -88,29 +78,19 @@
 
     .input-area {
       display: flex;
-
       gap: 10px;
-
       padding: 15px;
-
       border-top: 1px solid #29293a;
     }
 
     input {
       flex: 1;
-
       padding: 14px;
-
       border: none;
-
       border-radius: 12px;
-
       background: #202031;
-
       color: white;
-
       outline: none;
-
       font-size: 15px;
     }
 
@@ -120,17 +100,11 @@
 
     button {
       padding: 14px 18px;
-
       border: none;
-
       border-radius: 12px;
-
       background: #6c63ff;
-
       color: white;
-
       font-weight: bold;
-
       cursor: pointer;
     }
 
@@ -164,7 +138,10 @@
 
     <div class="chat" id="chat">
 
-      <div class="message lucy">
+      <div
+        class="message lucy"
+        id="welcomeMessage"
+      >
         Hi! I'm LUCY. 👋
         <br>
         I'm ready to chat with you.
@@ -196,59 +173,184 @@
 
   <script>
 
-    // Conversation messages currently visible in the chat.
+    // Messages currently loaded in the conversation.
     let conversation = [];
 
-    // Supabase conversation ID returned by our server.
+    // The Supabase conversation ID.
     let conversationId = null;
+
+
+    function addMessage(role, content) {
+
+      const chat =
+        document.getElementById("chat");
+
+      const message =
+        document.createElement("div");
+
+      message.className =
+        "message " +
+        (role === "user"
+          ? "user"
+          : "lucy");
+
+      message.textContent =
+        content;
+
+      chat.appendChild(message);
+
+      chat.scrollTop =
+        chat.scrollHeight;
+    }
+
+
+    async function loadConversation() {
+
+      // Get the saved conversation ID.
+      const savedId =
+        localStorage.getItem(
+          "lucyConversationId"
+        );
+
+      if (!savedId) {
+        return;
+      }
+
+      conversationId =
+        savedId;
+
+
+      try {
+
+        const response =
+          await fetch(
+            "/api/history?conversationId=" +
+            encodeURIComponent(
+              conversationId
+            )
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok) {
+
+          console.error(
+            "History error:",
+            data.error
+          );
+
+          return;
+        }
+
+
+        const messages =
+          data.messages || [];
+
+
+        if (messages.length === 0) {
+          return;
+        }
+
+
+        // Remove the default welcome message.
+        const welcomeMessage =
+          document.getElementById(
+            "welcomeMessage"
+          );
+
+        if (welcomeMessage) {
+          welcomeMessage.remove();
+        }
+
+
+        // Rebuild the conversation.
+        conversation =
+          messages.map(message => ({
+            role: message.role,
+            content: message.content
+          }));
+
+
+        // Display saved messages.
+        messages.forEach(message => {
+
+          addMessage(
+            message.role,
+            message.content
+          );
+
+        });
+
+
+      } catch (error) {
+
+        console.error(
+          "Could not load conversation:",
+          error
+        );
+
+      }
+
+    }
 
 
     async function sendMessage() {
 
       const input =
-        document.getElementById("messageInput");
+        document.getElementById(
+          "messageInput"
+        );
 
       const chat =
         document.getElementById("chat");
 
       const sendButton =
-        document.getElementById("sendButton");
+        document.getElementById(
+          "sendButton"
+        );
 
       const message =
         input.value.trim();
 
 
-      // Don't send empty messages.
       if (!message) {
         return;
       }
 
 
-      // Show the user's message.
-      const userMessage =
-        document.createElement("div");
+      // Remove welcome message if it is still visible.
+      const welcomeMessage =
+        document.getElementById(
+          "welcomeMessage"
+        );
 
-      userMessage.className =
-        "message user";
-
-      userMessage.textContent =
-        message;
-
-      chat.appendChild(userMessage);
+      if (welcomeMessage) {
+        welcomeMessage.remove();
+      }
 
 
-      // Clear the input.
+      // Display the user's message.
+      addMessage(
+        "user",
+        message
+      );
+
+
       input.value = "";
 
-
-      // Temporarily disable sending.
       sendButton.disabled = true;
 
 
-      // Add the user's message to the conversation.
+      // Add the user message locally.
       conversation.push({
+
         role: "user",
+
         content: message
+
       });
 
 
@@ -262,10 +364,11 @@
       thinkingMessage.textContent =
         "LUCY is thinking... 🤔";
 
-      chat.appendChild(thinkingMessage);
+      chat.appendChild(
+        thinkingMessage
+      );
 
 
-      // Scroll to the latest message.
       chat.scrollTop =
         chat.scrollHeight;
 
@@ -273,38 +376,43 @@
       try {
 
         const response =
-          await fetch("/api/chat", {
+          await fetch(
+            "/api/chat",
+            {
 
-            method: "POST",
+              method: "POST",
 
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
 
-            body: JSON.stringify({
+              body: JSON.stringify({
 
-              messages:
-                conversation,
+                messages:
+                  conversation,
 
-              conversationId:
-                conversationId
+                conversationId:
+                  conversationId
 
-            })
+              })
 
-          });
+            }
+          );
 
 
         const data =
           await response.json();
 
 
-        // Handle server errors.
         if (!response.ok) {
 
           thinkingMessage.textContent =
             data.error ||
             "Something went wrong.";
+
+          // Remove failed message from local conversation.
+          conversation.pop();
 
           return;
         }
@@ -315,6 +423,11 @@
 
           conversationId =
             data.conversationId;
+
+          localStorage.setItem(
+            "lucyConversationId",
+            conversationId
+          );
 
         }
 
@@ -347,9 +460,10 @@
         thinkingMessage.textContent =
           "Could not reach LUCY's server.";
 
+        conversation.pop();
+
       } finally {
 
-        // Allow another message to be sent.
         sendButton.disabled = false;
 
         input.focus();
@@ -357,16 +471,17 @@
       }
 
 
-      // Keep the newest message visible.
       chat.scrollTop =
         chat.scrollHeight;
 
     }
 
 
-    // Press Enter to send a message.
+    // Send with the Enter key.
     document
-      .getElementById("messageInput")
+      .getElementById(
+        "messageInput"
+      )
       .addEventListener(
         "keydown",
         function(event) {
@@ -381,6 +496,10 @@
 
         }
       );
+
+
+    // Load the saved conversation when LUCY opens.
+    loadConversation();
 
   </script>
 
