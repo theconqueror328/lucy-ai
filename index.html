@@ -71,6 +71,10 @@
       cursor: pointer;
     }
 
+    .new-chat-button:hover {
+      background: #353552;
+    }
+
     .new-chat-button:active {
       transform: scale(0.96);
     }
@@ -78,20 +82,39 @@
     .chat-list {
       border-bottom: 1px solid #29293a;
       padding: 12px;
-      max-height: 180px;
+      max-height: 190px;
       overflow-y: auto;
+    }
+
+    .chat-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      padding: 0 5px;
     }
 
     .chat-list-title {
       font-size: 13px;
       color: #8f8f9f;
-      margin-bottom: 8px;
-      padding-left: 5px;
+      font-weight: bold;
+    }
+
+    .refresh-button {
+      background: transparent;
+      color: #8f8f9f;
+      padding: 3px 7px;
+      font-size: 16px;
+    }
+
+    .refresh-button:hover {
+      color: white;
+      background: #202031;
     }
 
     .conversation-item {
       width: 100%;
-      padding: 10px 12px;
+      padding: 11px 12px;
       margin-bottom: 6px;
 
       border: none;
@@ -108,10 +131,17 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+
+      transition: 0.15s;
     }
 
     .conversation-item:hover {
       background: #25253a;
+    }
+
+    .conversation-item.active {
+      background: #36365a;
+      box-shadow: inset 3px 0 0 #6c63ff;
     }
 
     .conversation-item:active {
@@ -172,7 +202,7 @@
       color: #77778a;
     }
 
-    button {
+    .send-button {
       padding: 14px 18px;
       border: none;
       border-radius: 12px;
@@ -182,11 +212,15 @@
       cursor: pointer;
     }
 
-    button:active {
+    .send-button:hover {
+      background: #7a72ff;
+    }
+
+    .send-button:active {
       transform: scale(0.97);
     }
 
-    button:disabled {
+    .send-button:disabled {
       opacity: 0.6;
       cursor: not-allowed;
     }
@@ -219,14 +253,29 @@
 
     <div class="chat-list">
 
-      <div class="chat-list-title">
-        💬 Chats
+      <div class="chat-list-header">
+
+        <div class="chat-list-title">
+          💬 Chats
+        </div>
+
+        <button
+          class="refresh-button"
+          onclick="loadConversations()"
+          title="Refresh chats"
+        >
+          ↻
+        </button>
+
       </div>
 
+
       <div id="conversationList">
+
         <div class="empty-chats">
           Loading conversations...
         </div>
+
       </div>
 
     </div>
@@ -256,6 +305,7 @@
       >
 
       <button
+        class="send-button"
         id="sendButton"
         onclick="sendMessage()"
       >
@@ -269,10 +319,8 @@
 
   <script>
 
-    // Messages currently loaded in this chat.
     let conversation = [];
 
-    // Current Supabase conversation ID.
     let conversationId = null;
 
 
@@ -318,91 +366,30 @@
     }
 
 
-    async function loadConversation() {
+    function highlightActiveConversation() {
 
-      const savedId =
-        localStorage.getItem(
-          "lucyConversationId"
+      const buttons =
+        document.querySelectorAll(
+          ".conversation-item"
         );
 
-      if (!savedId) {
-        return;
-      }
 
-      conversationId =
-        savedId;
+      buttons.forEach(button => {
 
+        if (
+          String(button.dataset.id) ===
+          String(conversationId)
+        ) {
 
-      try {
+          button.classList.add("active");
 
-        const response =
-          await fetch(
-            "/api/history?conversationId=" +
-            encodeURIComponent(
-              conversationId
-            )
-          );
+        } else {
 
+          button.classList.remove("active");
 
-        const data =
-          await response.json();
-
-
-        if (!response.ok) {
-
-          console.error(
-            "History error:",
-            data.error
-          );
-
-          return;
         }
 
-
-        const messages =
-          data.messages || [];
-
-
-        if (messages.length === 0) {
-          return;
-        }
-
-
-        const welcomeMessage =
-          document.getElementById(
-            "welcomeMessage"
-          );
-
-        if (welcomeMessage) {
-          welcomeMessage.remove();
-        }
-
-
-        conversation =
-          messages.map(message => ({
-            role: message.role,
-            content: message.content
-          }));
-
-
-        messages.forEach(message => {
-
-          addMessage(
-            message.role,
-            message.content
-          );
-
-        });
-
-
-      } catch (error) {
-
-        console.error(
-          "Could not load conversation:",
-          error
-        );
-
-      }
+      });
 
     }
 
@@ -435,11 +422,6 @@
             </div>
           `;
 
-          console.error(
-            "Conversation list error:",
-            data.error
-          );
-
           return;
         }
 
@@ -471,10 +453,15 @@
           button.className =
             "conversation-item";
 
+          button.dataset.id =
+            item.id;
+
           button.textContent =
             "💬 " +
-            (item.title ||
-              "New conversation");
+            (
+              item.title ||
+              "New conversation"
+            );
 
 
           button.onclick =
@@ -490,6 +477,9 @@
           list.appendChild(button);
 
         });
+
+
+        highlightActiveConversation();
 
 
       } catch (error) {
@@ -510,13 +500,31 @@
     }
 
 
-    async function openConversation(id) {
+    async function loadConversation() {
 
-      if (String(id) ===
-          String(conversationId)) {
+      const savedId =
+        localStorage.getItem(
+          "lucyConversationId"
+        );
+
+
+      if (!savedId) {
         return;
       }
 
+
+      conversationId =
+        savedId;
+
+
+      await openConversation(
+        savedId
+      );
+
+    }
+
+
+    async function openConversation(id) {
 
       conversationId = id;
 
@@ -525,6 +533,9 @@
         "lucyConversationId",
         conversationId
       );
+
+
+      highlightActiveConversation();
 
 
       const chat =
@@ -578,6 +589,7 @@
           showWelcomeMessage();
 
           return;
+
         }
 
 
@@ -623,6 +635,9 @@
       showWelcomeMessage();
 
 
+      highlightActiveConversation();
+
+
       document
         .getElementById(
           "messageInput"
@@ -647,6 +662,7 @@
           "sendButton"
         );
 
+
       const message =
         input.value.trim();
 
@@ -660,6 +676,7 @@
         document.getElementById(
           "welcomeMessage"
         );
+
 
       if (welcomeMessage) {
         welcomeMessage.remove();
@@ -689,11 +706,14 @@
       const thinkingMessage =
         document.createElement("div");
 
+
       thinkingMessage.className =
         "message lucy";
 
+
       thinkingMessage.textContent =
         "LUCY is thinking... 🤔";
+
 
       chat.appendChild(
         thinkingMessage
@@ -745,6 +765,7 @@
           conversation.pop();
 
           return;
+
         }
 
 
@@ -752,6 +773,7 @@
 
           conversationId =
             data.conversationId;
+
 
           localStorage.setItem(
             "lucyConversationId",
@@ -776,9 +798,10 @@
         });
 
 
-        // Refresh the conversation list
-        // so the new chat appears.
         loadConversations();
+
+
+        highlightActiveConversation();
 
 
       } catch (error) {
@@ -788,8 +811,10 @@
           error
         );
 
+
         thinkingMessage.textContent =
           "Could not reach LUCY's server.";
+
 
         conversation.pop();
 
@@ -828,10 +853,8 @@
       );
 
 
-    // Load the current conversation.
     loadConversation();
 
-    // Load the conversation list.
     loadConversations();
 
   </script>
