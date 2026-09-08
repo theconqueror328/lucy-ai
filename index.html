@@ -1,162 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LUCY AI</title>
+<script>
+  async function sendMessage() {
+    const input = document.getElementById("messageInput");
+    const chat = document.getElementById("chat");
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    const message = input.value.trim();
+
+    if (!message) return;
+
+    // Show user's message
+    const userMessage = document.createElement("div");
+    userMessage.className = "message user";
+    userMessage.textContent = message;
+    chat.appendChild(userMessage);
+
+    input.value = "";
+
+    // Show thinking message
+    const thinkingMessage = document.createElement("div");
+    thinkingMessage.className = "message lucy";
+    thinkingMessage.textContent = "LUCY is thinking... 🤔";
+    chat.appendChild(thinkingMessage);
+
+    chat.scrollTop = chat.scrollHeight;
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          message: message
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Something went wrong.");
+      }
+
+      thinkingMessage.textContent = data.reply;
+
+    } catch (error) {
+      console.error(error);
+
+      thinkingMessage.textContent =
+        "Sorry 😅 I couldn't connect to my AI brain right now.";
     }
 
-    body {
-      font-family: Arial, sans-serif;
-      background: #0b0b12;
-      color: white;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+    chat.scrollTop = chat.scrollHeight;
+  }
 
-    .app {
-      width: 100%;
-      max-width: 500px;
-      height: 100vh;
-      max-height: 850px;
-      background: #12121c;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .header {
-      padding: 20px;
-      text-align: center;
-      border-bottom: 1px solid #29293a;
-    }
-
-    .logo {
-      font-size: 28px;
-      font-weight: bold;
-    }
-
-    .status {
-      color: #8f8f9f;
-      font-size: 13px;
-      margin-top: 5px;
-    }
-
-    .chat {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-    }
-
-    .message {
-      padding: 12px 15px;
-      border-radius: 15px;
-      margin-bottom: 12px;
-      max-width: 85%;
-      line-height: 1.5;
-    }
-
-    .lucy {
-      background: #202031;
-      margin-right: auto;
-    }
-
-    .user {
-      background: #36365a;
-      margin-left: auto;
-    }
-
-    .input-area {
-      display: flex;
-      gap: 10px;
-      padding: 15px;
-      border-top: 1px solid #29293a;
-    }
-
-    input {
-      flex: 1;
-      padding: 14px;
-      border: none;
-      border-radius: 12px;
-      background: #202031;
-      color: white;
-      outline: none;
-    }
-
-    button {
-      padding: 14px 18px;
-      border: none;
-      border-radius: 12px;
-      background: #6c63ff;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-  </style>
-</head>
-
-<body>
-
-  <div class="app">
-
-    <div class="header">
-      <div class="logo">LUCY 🤖</div>
-      <div class="status">Your AI assistant</div>
-    </div>
-
-    <div class="chat" id="chat">
-      <div class="message lucy">
-        Hi! I'm LUCY. 👋<br>
-        I'm ready to chat with you.
-      </div>
-    </div>
-
-    <div class="input-area">
-      <input
-        id="messageInput"
-        type="text"
-        placeholder="Message LUCY..."
-      >
-
-      <button onclick="sendMessage()">Send</button>
-    </div>
-
-  </div>
-
-  <script>
-    function sendMessage() {
-      const input = document.getElementById("messageInput");
-      const chat = document.getElementById("chat");
-
-      const message = input.value.trim();
-
-      if (!message) return;
-
-      const userMessage = document.createElement("div");
-      userMessage.className = "message user";
-      userMessage.textContent = message;
-
-      chat.appendChild(userMessage);
-
-      input.value = "";
-
-      const lucyMessage = document.createElement("div");
-      lucyMessage.className = "message lucy";
-      lucyMessage.textContent =
-        "I'm still being built 😎. My AI brain isn't connected yet!";
-
-      chat.appendChild(lucyMessage);
-
-      chat.scrollTop = chat.scrollHeight;
-    }
-  </script>
-
-</body>
-</html>
+  // Press Enter to send
+  document
+    .getElementById("messageInput")
+    .addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    });
+</script>
