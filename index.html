@@ -31,6 +31,7 @@
       background: #12121c;
       display: flex;
       flex-direction: column;
+      position: relative;
     }
 
     .header {
@@ -72,6 +73,55 @@
 
     .new-chat-button:active {
       transform: scale(0.96);
+    }
+
+    .chat-list {
+      border-bottom: 1px solid #29293a;
+      padding: 12px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .chat-list-title {
+      font-size: 13px;
+      color: #8f8f9f;
+      margin-bottom: 8px;
+      padding-left: 5px;
+    }
+
+    .conversation-item {
+      width: 100%;
+      padding: 10px 12px;
+      margin-bottom: 6px;
+
+      border: none;
+      border-radius: 10px;
+
+      background: #1c1c2a;
+      color: white;
+
+      text-align: left;
+      font-size: 13px;
+
+      cursor: pointer;
+
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .conversation-item:hover {
+      background: #25253a;
+    }
+
+    .conversation-item:active {
+      transform: scale(0.99);
+    }
+
+    .empty-chats {
+      color: #77778a;
+      font-size: 13px;
+      padding: 8px 5px;
     }
 
     .chat {
@@ -162,6 +212,21 @@
 
       <div class="status">
         Your AI assistant
+      </div>
+
+    </div>
+
+
+    <div class="chat-list">
+
+      <div class="chat-list-title">
+        💬 Chats
+      </div>
+
+      <div id="conversationList">
+        <div class="empty-chats">
+          Loading conversations...
+        </div>
       </div>
 
     </div>
@@ -342,23 +407,222 @@
     }
 
 
-    function startNewChat() {
+    async function loadConversations() {
 
-      // Forget the current conversation ID.
-      conversationId = null;
+      const list =
+        document.getElementById(
+          "conversationList"
+        );
 
-      // Clear the local conversation.
+
+      try {
+
+        const response =
+          await fetch(
+            "/api/conversations"
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok) {
+
+          list.innerHTML = `
+            <div class="empty-chats">
+              Could not load chats.
+            </div>
+          `;
+
+          console.error(
+            "Conversation list error:",
+            data.error
+          );
+
+          return;
+        }
+
+
+        const conversations =
+          data.conversations || [];
+
+
+        if (conversations.length === 0) {
+
+          list.innerHTML = `
+            <div class="empty-chats">
+              No conversations yet.
+            </div>
+          `;
+
+          return;
+        }
+
+
+        list.innerHTML = "";
+
+
+        conversations.forEach(item => {
+
+          const button =
+            document.createElement("button");
+
+          button.className =
+            "conversation-item";
+
+          button.textContent =
+            "💬 " +
+            (item.title ||
+              "New conversation");
+
+
+          button.onclick =
+            function() {
+
+              openConversation(
+                item.id
+              );
+
+            };
+
+
+          list.appendChild(button);
+
+        });
+
+
+      } catch (error) {
+
+        console.error(
+          "Could not load conversations:",
+          error
+        );
+
+        list.innerHTML = `
+          <div class="empty-chats">
+            Could not reach the server.
+          </div>
+        `;
+
+      }
+
+    }
+
+
+    async function openConversation(id) {
+
+      if (String(id) ===
+          String(conversationId)) {
+        return;
+      }
+
+
+      conversationId = id;
+
+
+      localStorage.setItem(
+        "lucyConversationId",
+        conversationId
+      );
+
+
+      const chat =
+        document.getElementById("chat");
+
+
+      chat.innerHTML = "";
+
+
       conversation = [];
 
-      // Remove the saved conversation ID.
+
+      try {
+
+        const response =
+          await fetch(
+            "/api/history?conversationId=" +
+            encodeURIComponent(id)
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok) {
+
+          addMessage(
+            "lucy",
+            data.error ||
+            "Could not load this conversation."
+          );
+
+          return;
+        }
+
+
+        const messages =
+          data.messages || [];
+
+
+        conversation =
+          messages.map(message => ({
+            role: message.role,
+            content: message.content
+          }));
+
+
+        if (messages.length === 0) {
+
+          showWelcomeMessage();
+
+          return;
+        }
+
+
+        messages.forEach(message => {
+
+          addMessage(
+            message.role,
+            message.content
+          );
+
+        });
+
+
+      } catch (error) {
+
+        console.error(
+          "Could not open conversation:",
+          error
+        );
+
+        addMessage(
+          "lucy",
+          "Could not load this conversation."
+        );
+
+      }
+
+    }
+
+
+    function startNewChat() {
+
+      conversationId = null;
+
+      conversation = [];
+
+
       localStorage.removeItem(
         "lucyConversationId"
       );
 
-      // Clear the chat screen.
+
       showWelcomeMessage();
 
-      // Put the cursor back in the input.
+
       document
         .getElementById(
           "messageInput"
@@ -512,6 +776,11 @@
         });
 
 
+        // Refresh the conversation list
+        // so the new chat appears.
+        loadConversations();
+
+
       } catch (error) {
 
         console.error(
@@ -559,8 +828,11 @@
       );
 
 
-    // Load the saved conversation when LUCY opens.
+    // Load the current conversation.
     loadConversation();
+
+    // Load the conversation list.
+    loadConversations();
 
   </script>
 
