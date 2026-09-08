@@ -6,11 +6,11 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message } = req.body || {};
+    const { messages } = req.body || {};
 
-    if (!message || typeof message !== "string") {
+    if (!Array.isArray(messages) || messages.length === 0) {
       return res.status(400).json({
-        error: "Please provide a message."
+        error: "Please provide conversation messages."
       });
     }
 
@@ -35,16 +35,16 @@ export default async function handler(req, res) {
 
           instructions:
             "You are LUCY, a personal AI assistant. " +
-            "Your name is LUCY. When the user asks who you are, say you are LUCY. " +
-            "Do not identify yourself as ChatGPT. " +
+            "Your name is LUCY. When asked who you are, say you are LUCY. " +
+            "Never identify yourself as ChatGPT. " +
             "You are friendly, intelligent, helpful, calm and conversational. " +
             "Speak naturally and clearly. " +
-            "Explain difficult things simply when useful. " +
-            "Be honest when you are uncertain and never invent facts. " +
+            "Remember and use the conversation context provided to you. " +
+            "Be honest when uncertain and never invent facts. " +
             "Do not pretend to be human. " +
             "Give safe and age-appropriate answers.",
 
-          input: message
+          input: messages
         })
       }
     );
@@ -74,7 +74,7 @@ export default async function handler(req, res) {
     }
 
     return res.status(200).json({
-      reply: reply
+      reply
     });
 
   } catch (error) {
