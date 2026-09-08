@@ -1,13 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LUCY AI</title>
 
   <style>
@@ -22,7 +17,6 @@
       background: #0b0b12;
       color: white;
       min-height: 100vh;
-
       display: flex;
       justify-content: center;
       align-items: center;
@@ -33,9 +27,7 @@
       max-width: 500px;
       height: 100vh;
       max-height: 850px;
-
       background: #12121c;
-
       display: flex;
       flex-direction: column;
     }
@@ -43,7 +35,6 @@
     .header {
       padding: 20px;
       text-align: center;
-
       border-bottom: 1px solid #29293a;
     }
 
@@ -68,10 +59,8 @@
       padding: 12px 15px;
       border-radius: 15px;
       margin-bottom: 12px;
-
       max-width: 85%;
       line-height: 1.5;
-
       white-space: pre-wrap;
       word-wrap: break-word;
     }
@@ -89,25 +78,18 @@
     .input-area {
       display: flex;
       gap: 10px;
-
       padding: 15px;
-
       border-top: 1px solid #29293a;
     }
 
     input {
       flex: 1;
-
       padding: 14px;
-
       border: none;
       border-radius: 12px;
-
       background: #202031;
       color: white;
-
       outline: none;
-
       font-size: 15px;
     }
 
@@ -117,15 +99,11 @@
 
     button {
       padding: 14px 18px;
-
       border: none;
       border-radius: 12px;
-
       background: #6c63ff;
       color: white;
-
       font-weight: bold;
-
       cursor: pointer;
     }
 
@@ -140,15 +118,9 @@
   <div class="app">
 
     <div class="header">
-      <div class="logo">
-        LUCY 🤖
-      </div>
-
-      <div class="status">
-        Your AI assistant
-      </div>
+      <div class="logo">LUCY 🤖</div>
+      <div class="status">Your AI assistant</div>
     </div>
-
 
     <div class="chat" id="chat">
 
@@ -159,7 +131,6 @@
       </div>
 
     </div>
-
 
     <div class="input-area">
 
@@ -180,6 +151,10 @@
 
   <script>
 
+    // LUCY's conversation memory
+    const conversation = [];
+
+
     async function sendMessage() {
 
       const input =
@@ -197,7 +172,7 @@
       }
 
 
-      // Add user's message
+      // Show user's message
       const userMessage =
         document.createElement("div");
 
@@ -214,7 +189,14 @@
       input.value = "";
 
 
-      // Add thinking message
+      // Save user's message
+      conversation.push({
+        role: "user",
+        content: message
+      });
+
+
+      // Thinking message
       const thinkingMessage =
         document.createElement("div");
 
@@ -244,7 +226,7 @@
             },
 
             body: JSON.stringify({
-              message: message
+              messages: conversation
             })
 
           });
@@ -254,7 +236,6 @@
           await response.json();
 
 
-        // SHOW THE REAL SERVER ERROR
         if (!response.ok) {
 
           thinkingMessage.textContent =
@@ -265,10 +246,17 @@
         }
 
 
-        // Show LUCY's answer
+        // Show LUCY's response
         thinkingMessage.textContent =
           data.reply ||
           "LUCY didn't receive a response.";
+
+
+        // Save LUCY's response
+        conversation.push({
+          role: "assistant",
+          content: data.reply
+        });
 
 
       } catch (error) {
@@ -284,6 +272,7 @@
 
       chat.scrollTop =
         chat.scrollHeight;
+
     }
 
 
@@ -304,5 +293,4 @@
   </script>
 
 </body>
-
 </html>
