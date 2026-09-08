@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
   <meta charset="UTF-8">
 
   <meta
@@ -12,506 +11,729 @@
 
   <title>LUCY AI</title>
 
-
   <style>
 
     * {
       box-sizing: border-box;
+    }
+
+
+    html,
+    body {
       margin: 0;
       padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+      background: #ffffff;
+      color: #111111;
+      overflow: hidden;
     }
 
 
     body {
-
-      font-family: Arial, sans-serif;
-
-      background: #0b0b12;
-
-      color: white;
-
-      min-height: 100vh;
-
       display: flex;
-
       justify-content: center;
-
-      align-items: center;
-
     }
 
+
+    /* =========================
+       APP
+    ========================= */
 
     .app {
-
       width: 100%;
-
       max-width: 500px;
-
       height: 100vh;
-
-      max-height: 850px;
-
-      background: #12121c;
-
       display: flex;
-
       flex-direction: column;
-
       position: relative;
-
+      background: #ffffff;
     }
 
 
+    /* =========================
+       HEADER
+    ========================= */
+
     .header {
+      height: 60px;
+      min-height: 60px;
 
-      padding: 15px 20px;
+      display: flex;
+      align-items: center;
 
-      text-align: center;
+      padding: 0 12px;
 
-      border-bottom: 1px solid #29293a;
+      border-bottom: 1px solid #eeeeee;
+
+      background: #ffffff;
 
       position: relative;
+      z-index: 5;
+    }
 
+
+    .menu-button {
+      width: 42px;
+      height: 42px;
+
+      border: none;
+      background: transparent;
+
+      border-radius: 12px;
+
+      font-size: 23px;
+
+      cursor: pointer;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      transition: 0.2s;
+    }
+
+
+    .menu-button:hover {
+      background: #f2f2f2;
+    }
+
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+
+      margin-left: 5px;
     }
 
 
     .logo {
-
-      font-size: 28px;
-
-      font-weight: bold;
-
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
     }
 
 
-    .status {
+    .logo-dot {
+      width: 8px;
+      height: 8px;
 
-      color: #8f8f9f;
+      border-radius: 50%;
 
-      font-size: 13px;
+      background: #111111;
 
-      margin-top: 5px;
-
+      margin-left: 5px;
     }
 
 
-    .new-chat-button {
+    /* =========================
+       SIDEBAR OVERLAY
+    ========================= */
 
-      position: absolute;
+    .sidebar-overlay {
+      position: fixed;
 
-      right: 12px;
+      inset: 0;
 
-      top: 15px;
+      background: rgba(
+        0,
+        0,
+        0,
+        0.35
+      );
 
-      padding: 8px 10px;
+      opacity: 0;
+      visibility: hidden;
 
-      border: none;
+      transition:
+        opacity 0.25s ease,
+        visibility 0.25s ease;
 
-      border-radius: 9px;
-
-      background: #292943;
-
-      color: white;
-
-      font-size: 12px;
-
-      font-weight: bold;
-
-      cursor: pointer;
-
+      z-index: 20;
     }
 
 
-    .new-chat-button:hover {
-
-      background: #353552;
-
+    .sidebar-overlay.open {
+      opacity: 1;
+      visibility: visible;
     }
 
 
-    .new-chat-button:active {
+    /* =========================
+       SIDEBAR
+    ========================= */
 
-      transform: scale(0.96);
+    .sidebar {
+      position: fixed;
 
+      top: 0;
+      left: 0;
+
+      width: 310px;
+      max-width: 85vw;
+
+      height: 100vh;
+
+      background: #ffffff;
+
+      box-shadow:
+        4px 0 20px
+        rgba(0, 0, 0, 0.12);
+
+      transform:
+        translateX(-100%);
+
+      transition:
+        transform 0.25s ease;
+
+      z-index: 21;
+
+      display: flex;
+      flex-direction: column;
     }
 
 
-    .chat-list {
+    .sidebar.open {
+      transform:
+        translateX(0);
+    }
 
-      border-bottom: 1px solid #29293a;
+
+    /* =========================
+       SIDEBAR TOP
+    ========================= */
+
+    .sidebar-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
 
       padding: 12px;
 
-      max-height: 220px;
-
-      overflow-y: auto;
-
+      border-bottom:
+        1px solid #eeeeee;
     }
 
 
-    .chat-list-header {
-
+    .sidebar-brand {
       display: flex;
-
-      justify-content: space-between;
-
       align-items: center;
-
-      margin-bottom: 8px;
-
-      padding: 0 5px;
-
+      gap: 8px;
     }
 
 
-    .chat-list-title {
-
-      font-size: 13px;
-
-      color: #8f8f9f;
-
-      font-weight: bold;
-
+    .sidebar-brand-name {
+      font-size: 20px;
+      font-weight: 700;
     }
 
 
-    .refresh-button {
+    .close-sidebar {
+      width: 40px;
+      height: 40px;
 
       border: none;
 
       background: transparent;
 
-      color: #8f8f9f;
+      border-radius: 10px;
 
-      padding: 3px 7px;
-
-      font-size: 16px;
+      font-size: 22px;
 
       cursor: pointer;
-
-      border-radius: 6px;
-
     }
 
 
-    .refresh-button:hover {
+    .close-sidebar:hover {
+      background: #f2f2f2;
+    }
 
-      color: white;
 
-      background: #202031;
+    /* =========================
+       PROFILE
+    ========================= */
 
+    .profile-card {
+      margin: 14px 12px 10px;
+
+      padding: 12px;
+
+      border: 1px solid #eeeeee;
+
+      border-radius: 14px;
+
+      display: flex;
+      align-items: center;
+
+      gap: 11px;
+
+      background: #fafafa;
+    }
+
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+
+      border-radius: 50%;
+
+      background: #111111;
+      color: #ffffff;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-weight: 700;
+      font-size: 17px;
+    }
+
+
+    .profile-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+
+    .profile-name {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+
+    .profile-status {
+      margin-top: 3px;
+
+      color: #777777;
+
+      font-size: 12px;
+    }
+
+
+    /* =========================
+       NEW CHAT
+    ========================= */
+
+    .new-chat-button {
+      margin:
+        4px 12px 12px;
+
+      width:
+        calc(100% - 24px);
+
+      padding: 12px 14px;
+
+      border: 1px solid #dddddd;
+
+      background: #ffffff;
+
+      border-radius: 12px;
+
+      font-size: 14px;
+
+      font-weight: 600;
+
+      cursor: pointer;
+
+      text-align: left;
+
+      display: flex;
+      align-items: center;
+
+      gap: 9px;
+
+      transition: 0.2s;
+    }
+
+
+    .new-chat-button:hover {
+      background: #f5f5f5;
+    }
+
+
+    /* =========================
+       HISTORY TITLE
+    ========================= */
+
+    .history-title {
+      padding:
+        8px 15px 8px;
+
+      font-size: 12px;
+
+      font-weight: 700;
+
+      color: #777777;
+
+      text-transform: uppercase;
+
+      letter-spacing: 0.5px;
+    }
+
+
+    /* =========================
+       CONVERSATION LIST
+    ========================= */
+
+    .conversation-list {
+      flex: 1;
+
+      overflow-y: auto;
+
+      padding:
+        0 8px 12px;
     }
 
 
     .conversation-row {
-
       display: flex;
-
-      gap: 6px;
-
-      margin-bottom: 6px;
+      align-items: center;
 
       width: 100%;
 
+      margin-bottom: 3px;
     }
 
 
     .conversation-item {
-
       flex: 1;
 
       min-width: 0;
 
-      padding: 11px 12px;
-
       border: none;
+
+      background: transparent;
+
+      padding: 10px 9px;
 
       border-radius: 10px;
 
-      background: #1c1c2a;
-
-      color: white;
+      cursor: pointer;
 
       text-align: left;
 
       font-size: 13px;
 
-      cursor: pointer;
+      color: #222222;
+
+      white-space: nowrap;
 
       overflow: hidden;
 
       text-overflow: ellipsis;
 
-      white-space: nowrap;
-
-      transition: 0.15s;
-
+      transition: 0.2s;
     }
 
 
     .conversation-item:hover {
-
-      background: #25253a;
-
+      background: #f3f3f3;
     }
 
 
     .conversation-item.active {
+      background: #eeeeee;
 
-      background: #36365a;
-
-      box-shadow: inset 3px 0 0 #6c63ff;
-
-    }
-
-
-    .conversation-item:active {
-
-      transform: scale(0.99);
-
+      font-weight: 600;
     }
 
 
     .rename-button {
-
-      width: 42px;
-
-      flex-shrink: 0;
+      width: 34px;
+      height: 34px;
 
       border: none;
 
-      border-radius: 10px;
+      background: transparent;
 
-      background: #292943;
-
-      color: white;
+      border-radius: 8px;
 
       cursor: pointer;
 
       font-size: 14px;
 
-      transition: 0.15s;
-
+      flex-shrink: 0;
     }
 
 
     .rename-button:hover {
-
-      background: #353552;
-
+      background: #eeeeee;
     }
 
 
-    .rename-button:active {
+    .empty-history {
+      padding:
+        20px 12px;
 
-      transform: scale(0.95);
+      text-align: center;
 
-    }
-
-
-    .rename-button:disabled {
-
-      opacity: 0.5;
-
-      cursor: not-allowed;
-
-    }
-
-
-    .empty-chats {
-
-      color: #77778a;
+      color: #888888;
 
       font-size: 13px;
 
-      padding: 8px 5px;
-
+      line-height: 1.5;
     }
 
 
+    /* =========================
+       SIDEBAR BOTTOM
+    ========================= */
+
+    .sidebar-bottom {
+      padding: 12px;
+
+      border-top:
+        1px solid #eeeeee;
+
+      font-size: 11px;
+
+      color: #888888;
+
+      text-align: center;
+    }
+
+
+    /* =========================
+       CHAT
+    ========================= */
+
     .chat {
-
       flex: 1;
-
-      padding: 20px;
 
       overflow-y: auto;
 
+      padding:
+        20px 14px 100px;
+
+      display: flex;
+      flex-direction: column;
+
+      gap: 12px;
     }
 
 
     .message {
+      max-width: 82%;
 
-      padding: 12px 15px;
+      padding:
+        10px 13px;
 
-      border-radius: 15px;
+      border-radius: 16px;
 
-      margin-bottom: 12px;
+      line-height: 1.45;
 
-      max-width: 85%;
-
-      line-height: 1.5;
+      font-size: 14px;
 
       white-space: pre-wrap;
 
       word-wrap: break-word;
-
     }
 
 
-    .lucy {
+    .message.user {
+      align-self: flex-end;
 
-      background: #202031;
+      background: #111111;
 
-      margin-right: auto;
+      color: #ffffff;
 
+      border-bottom-right-radius: 5px;
     }
 
 
-    .user {
+    .message.assistant {
+      align-self: flex-start;
 
-      background: #36365a;
+      background: #f1f1f1;
 
-      margin-left: auto;
+      color: #111111;
 
+      border-bottom-left-radius: 5px;
     }
 
+
+    .welcome {
+      text-align: center;
+
+      margin:
+        auto 20px;
+
+      color: #777777;
+
+      line-height: 1.5;
+    }
+
+
+    .welcome strong {
+      color: #111111;
+
+      font-size: 22px;
+
+      display: block;
+
+      margin-bottom: 7px;
+    }
+
+
+    /* =========================
+       INPUT AREA
+    ========================= */
 
     .input-area {
+      position: absolute;
 
-      display: flex;
+      bottom: 0;
+      left: 0;
+      right: 0;
 
-      gap: 10px;
+      padding:
+        10px 12px 14px;
 
-      padding: 15px;
-
-      border-top: 1px solid #29293a;
-
+      background:
+        linear-gradient(
+          to top,
+          #ffffff 75%,
+          rgba(255,255,255,0)
+        );
     }
 
 
-    input {
+    .input-box {
+      display: flex;
 
+      align-items: flex-end;
+
+      gap: 8px;
+
+      background: #f3f3f3;
+
+      border:
+        1px solid #e3e3e3;
+
+      border-radius: 18px;
+
+      padding:
+        7px 7px 7px 12px;
+    }
+
+
+    #messageInput {
       flex: 1;
-
-      padding: 14px;
 
       border: none;
 
-      border-radius: 12px;
-
-      background: #202031;
-
-      color: white;
-
       outline: none;
 
-      font-size: 15px;
+      resize: none;
 
-    }
+      background: transparent;
 
+      font-family: inherit;
 
-    input::placeholder {
+      font-size: 14px;
 
-      color: #77778a;
+      max-height: 120px;
 
+      min-height: 25px;
     }
 
 
     .send-button {
-
-      padding: 14px 18px;
+      width: 38px;
+      height: 38px;
 
       border: none;
 
       border-radius: 12px;
 
-      background: #6c63ff;
+      background: #111111;
 
-      color: white;
-
-      font-weight: bold;
+      color: #ffffff;
 
       cursor: pointer;
 
-    }
+      font-size: 17px;
 
-
-    .send-button:hover {
-
-      background: #7a72ff;
-
-    }
-
-
-    .send-button:active {
-
-      transform: scale(0.97);
-
+      flex-shrink: 0;
     }
 
 
     .send-button:disabled {
-
-      opacity: 0.6;
+      opacity: 0.4;
 
       cursor: not-allowed;
+    }
+
+
+    /* =========================
+       LOADING
+    ========================= */
+
+    .typing {
+      display: inline-flex;
+
+      gap: 4px;
+    }
+
+
+    .typing span {
+      width: 5px;
+      height: 5px;
+
+      background: #777777;
+
+      border-radius: 50%;
+
+      animation:
+        typing 1.2s infinite;
+    }
+
+
+    .typing span:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+
+    .typing span:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+
+    @keyframes typing {
+
+      0%,
+      60%,
+      100% {
+        opacity: 0.25;
+      }
+
+      30% {
+        opacity: 1;
+      }
 
     }
 
 
-    @media (max-width: 520px) {
+    /* =========================
+       MOBILE
+    ========================= */
 
-      body {
-
-        align-items: stretch;
-
-      }
-
+    @media (max-width: 600px) {
 
       .app {
-
         max-width: none;
-
-        max-height: none;
-
       }
 
-
-      .header {
-
-        padding: 14px 15px;
-
+      .sidebar {
+        width: 300px;
       }
 
-
-      .logo {
-
-        font-size: 25px;
-
-      }
-
-
-      .chat {
-
-        padding: 15px;
-
-      }
-
-
-      .input-area {
-
-        padding: 10px;
-
-      }
-
-
-      .new-chat-button {
-
-        right: 8px;
-
-        top: 12px;
-
+      .message {
+        max-width: 88%;
       }
 
     }
@@ -527,110 +749,71 @@
   <div class="app">
 
 
-    <div class="header">
+    <!-- =========================
+         MAIN HEADER
+    ========================= -->
 
+    <header class="header">
 
       <button
-        class="new-chat-button"
-        onclick="startNewChat()"
+        class="menu-button"
+        id="menuButton"
+        aria-label="Open menu"
       >
-        ＋ New Chat
+        ☰
       </button>
 
 
-      <div class="logo">
-        LUCY 🤖
-      </div>
+      <div class="logo-area">
 
-
-      <div class="status">
-        Your AI assistant
-      </div>
-
-
-    </div>
-
-
-
-    <div class="chat-list">
-
-
-      <div class="chat-list-header">
-
-
-        <div class="chat-list-title">
-          💬 Chats
+        <div class="logo">
+          LUCY
         </div>
 
-
-        <button
-          class="refresh-button"
-          onclick="loadConversations()"
-          title="Refresh chats"
-        >
-          ↻
-        </button>
-
+        <div class="logo-dot"></div>
 
       </div>
 
-
-      <div id="conversationList">
-
-        <div class="empty-chats">
-          Loading conversations...
-        </div>
-
-      </div>
-
-
-    </div>
+    </header>
 
 
 
-    <div
+    <!-- =========================
+         CHAT
+    ========================= -->
+
+    <main
       class="chat"
       id="chat"
     >
+    </main>
 
 
-      <div
-        class="message lucy"
-        id="welcomeMessage"
-      >
 
-        Hi! I'm LUCY. 👋
-
-        <br>
-
-        I'm ready to chat with you.
-
-      </div>
-
-
-    </div>
-
-
+    <!-- =========================
+         INPUT
+    ========================= -->
 
     <div class="input-area">
 
+      <div class="input-box">
 
-      <input
-        id="messageInput"
-        type="text"
-        placeholder="Message LUCY..."
-        autocomplete="off"
-      >
+        <textarea
+          id="messageInput"
+          placeholder="Message LUCY..."
+          rows="1"
+        ></textarea>
 
 
-      <button
-        class="send-button"
-        id="sendButton"
-        onclick="sendMessage()"
-      >
-        Send
-      </button>
+        <button
+          class="send-button"
+          id="sendButton"
+          onclick="sendMessage()"
+        >
+          ↑
+        </button>
 
+      </div>
 
     </div>
 
@@ -639,50 +822,251 @@
 
 
 
+  <!-- =========================
+       SIDEBAR OVERLAY
+  ========================= -->
+
+  <div
+    class="sidebar-overlay"
+    id="sidebarOverlay"
+  ></div>
+
+
+
+  <!-- =========================
+       SIDEBAR
+  ========================= -->
+
+  <aside
+    class="sidebar"
+    id="sidebar"
+  >
+
+
+    <div class="sidebar-top">
+
+      <div class="sidebar-brand">
+
+        <div class="avatar">
+          L
+        </div>
+
+        <div class="sidebar-brand-name">
+          LUCY
+        </div>
+
+      </div>
+
+
+      <button
+        class="close-sidebar"
+        id="closeSidebar"
+        aria-label="Close menu"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+
+    <!-- PROFILE -->
+
+    <div class="profile-card">
+
+      <div class="avatar">
+        U
+      </div>
+
+
+      <div class="profile-info">
+
+        <div class="profile-name">
+          LUCY User
+        </div>
+
+        <div class="profile-status">
+          Not signed in
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- NEW CHAT -->
+
+    <button
+      class="new-chat-button"
+      onclick="startNewChat()"
+    >
+      <span>＋</span>
+      <span>New Chat</span>
+    </button>
+
+
+
+    <!-- HISTORY -->
+
+    <div class="history-title">
+      Conversation History
+    </div>
+
+
+    <div
+      class="conversation-list"
+      id="conversationList"
+    >
+    </div>
+
+
+
+    <div class="sidebar-bottom">
+      LUCY AI
+    </div>
+
+
+  </aside>
+
+
+
   <script>
 
+    /* =========================
+       ELEMENTS
+    ========================= */
 
-    let conversation = [];
+    const chat =
+      document.getElementById(
+        "chat"
+      );
 
-    let conversationId = null;
+    const messageInput =
+      document.getElementById(
+        "messageInput"
+      );
+
+    const sendButton =
+      document.getElementById(
+        "sendButton"
+      );
+
+    const sidebar =
+      document.getElementById(
+        "sidebar"
+      );
+
+    const sidebarOverlay =
+      document.getElementById(
+        "sidebarOverlay"
+      );
+
+    const menuButton =
+      document.getElementById(
+        "menuButton"
+      );
+
+    const closeSidebar =
+      document.getElementById(
+        "closeSidebar"
+      );
+
+    const conversationList =
+      document.getElementById(
+        "conversationList"
+      );
 
 
+
+    /* =========================
+       STATE
+    ========================= */
+
+    let conversationId =
+      localStorage.getItem(
+        "lucyConversationId"
+      );
+
+
+    let conversationMessages = [];
+
+
+
+    /* =========================
+       SIDEBAR
+    ========================= */
+
+    function openSidebar() {
+
+      sidebar.classList.add(
+        "open"
+      );
+
+      sidebarOverlay.classList.add(
+        "open"
+      );
+
+      loadConversations();
+
+    }
+
+
+    function closeSidebarMenu() {
+
+      sidebar.classList.remove(
+        "open"
+      );
+
+      sidebarOverlay.classList.remove(
+        "open"
+      );
+
+    }
+
+
+    menuButton.addEventListener(
+      "click",
+      openSidebar
+    );
+
+
+    closeSidebar.addEventListener(
+      "click",
+      closeSidebarMenu
+    );
+
+
+    sidebarOverlay.addEventListener(
+      "click",
+      closeSidebarMenu
+    );
+
+
+
+    /* =========================
+       MESSAGE
+    ========================= */
 
     function addMessage(
       role,
       content
     ) {
 
-
-      const chat =
-        document.getElementById(
-          "chat"
-        );
-
-
       const message =
         document.createElement(
           "div"
         );
 
-
       message.className =
-        "message " +
-        (
-          role === "user"
-            ? "user"
-            : "lucy"
-        );
-
+        "message " + role;
 
       message.textContent =
         content;
 
-
       chat.appendChild(
         message
       );
-
 
       chat.scrollTop =
         chat.scrollHeight;
@@ -691,91 +1075,77 @@
 
 
 
+    /* =========================
+       WELCOME
+    ========================= */
+
     function showWelcomeMessage() {
 
+      chat.innerHTML = "";
 
-      const chat =
-        document.getElementById(
-          "chat"
+      const welcome =
+        document.createElement(
+          "div"
         );
 
+      welcome.className =
+        "welcome";
 
-      chat.innerHTML = `
-
-        <div
-          class="message lucy"
-          id="welcomeMessage"
-        >
-
-          Hi! I'm LUCY. 👋
-
-          <br>
-
-          I'm ready to chat with you.
-
-        </div>
-
+      welcome.innerHTML = `
+        <strong>Hi! I'm LUCY. 👋</strong>
+        I'm ready to chat with you.
       `;
 
-    }
-
-
-
-    function highlightActiveConversation() {
-
-
-      const buttons =
-        document.querySelectorAll(
-          ".conversation-item"
-        );
-
-
-      buttons.forEach(
-        button => {
-
-
-          if (
-            String(
-              button.dataset.id
-            ) ===
-            String(
-              conversationId
-            )
-          ) {
-
-
-            button.classList.add(
-              "active"
-            );
-
-
-          } else {
-
-
-            button.classList.remove(
-              "active"
-            );
-
-          }
-
-        }
+      chat.appendChild(
+        welcome
       );
 
     }
 
 
 
+    /* =========================
+       HIGHLIGHT ACTIVE CHAT
+    ========================= */
+
+    function highlightActiveConversation() {
+
+      document
+        .querySelectorAll(
+          ".conversation-item"
+        )
+        .forEach(item => {
+
+          if (
+            item.dataset.id ==
+            conversationId
+          ) {
+
+            item.classList.add(
+              "active"
+            );
+
+          } else {
+
+            item.classList.remove(
+              "active"
+            );
+
+          }
+
+        });
+
+    }
+
+
+
+    /* =========================
+       LOAD CONVERSATIONS
+    ========================= */
+
     async function loadConversations() {
 
-
-      const list =
-        document.getElementById(
-          "conversationList"
-        );
-
-
       try {
-
 
         const response =
           await fetch(
@@ -787,62 +1157,37 @@
           await response.json();
 
 
-        if (!response.ok) {
-
-
-          list.innerHTML = `
-
-            <div class="empty-chats">
-              Could not load chats.
-            </div>
-
-          `;
-
-
-          return;
-
-        }
-
-
-        const conversations =
-          data.conversations || [];
+        conversationList.innerHTML =
+          "";
 
 
         if (
-          conversations.length === 0
+          !data.conversations ||
+          data.conversations.length === 0
         ) {
 
-
-          list.innerHTML = `
-
-            <div class="empty-chats">
-              No conversations yet.
+          conversationList.innerHTML = `
+            <div class="empty-history">
+              No conversations yet.<br>
+              Start a new chat with LUCY.
             </div>
-
           `;
-
 
           return;
 
         }
 
 
-        list.innerHTML = "";
-
-
-        conversations.forEach(
-          item => {
-
+        data.conversations.forEach(
+          conversation => {
 
             const row =
               document.createElement(
                 "div"
               );
 
-
             row.className =
               "conversation-row";
-
 
 
             const button =
@@ -850,33 +1195,28 @@
                 "button"
               );
 
-
             button.className =
               "conversation-item";
 
-
             button.dataset.id =
-              item.id;
-
+              conversation.id;
 
             button.textContent =
               "💬 " +
               (
-                item.title ||
+                conversation.title ||
                 "New conversation"
               );
 
 
             button.onclick =
-              function() {
-
+              () => {
 
                 openConversation(
-                  item.id
+                  conversation.id
                 );
 
               };
-
 
 
             const renameButton =
@@ -884,153 +1224,37 @@
                 "button"
               );
 
-
             renameButton.className =
               "rename-button";
-
 
             renameButton.textContent =
               "✏️";
 
 
-            renameButton.title =
-              "Rename conversation";
-
-
-            renameButton.setAttribute(
-              "aria-label",
-              "Rename conversation"
-            );
-
-
-
             renameButton.onclick =
-              async function(
-                event
-              ) {
-
+              async event => {
 
                 event.stopPropagation();
 
-
-                const currentTitle =
-                  item.title ||
-                  "New conversation";
-
-
-                const newTitle =
-                  prompt(
-                    "Enter a new name for this conversation:",
-                    currentTitle
-                  );
-
-
-                if (
-                  newTitle === null ||
-                  !newTitle.trim()
-                ) {
-
-                  return;
-
-                }
-
-
-                try {
-
-
-                  renameButton.disabled =
-                    true;
-
-
-                  const response =
-                    await fetch(
-                      "/api/rename-conversation",
-                      {
-
-                        method: "PATCH",
-
-                        headers: {
-
-                          "Content-Type":
-                            "application/json"
-
-                        },
-
-                        body:
-                          JSON.stringify({
-
-                            conversationId:
-                              item.id,
-
-                            title:
-                              newTitle.trim()
-
-                          })
-
-                      }
-                    );
-
-
-                  const data =
-                    await response.json();
-
-
-                  if (!response.ok) {
-
-
-                    alert(
-                      data.error ||
-                      "Could not rename conversation."
-                    );
-
-
-                    return;
-
-                  }
-
-
-                  await loadConversations();
-
-
-                } catch (
-                  error
-                ) {
-
-
-                  console.error(
-                    "Rename error:",
-                    error
-                  );
-
-
-                  alert(
-                    "Could not reach the server."
-                  );
-
-
-                } finally {
-
-
-                  renameButton.disabled =
-                    false;
-
-                }
+                await renameConversation(
+                  conversation.id,
+                  conversation.title ||
+                    "New conversation"
+                );
 
               };
-
 
 
             row.appendChild(
               button
             );
 
-
             row.appendChild(
               renameButton
             );
 
 
-            list.appendChild(
+            conversationList.appendChild(
               row
             );
 
@@ -1041,66 +1265,29 @@
         highlightActiveConversation();
 
 
-      } catch (
-        error
-      ) {
-
+      } catch (error) {
 
         console.error(
-          "Could not load conversations:",
+          "Conversation loading error:",
           error
         );
 
-
-        list.innerHTML = `
-
-          <div class="empty-chats">
-            Could not reach the server.
-          </div>
-
-        `;
-
       }
 
     }
 
 
 
-    async function loadConversation() {
-
-
-      const savedId =
-        localStorage.getItem(
-          "lucyConversationId"
-        );
-
-
-      if (!savedId) {
-
-        return;
-
-      }
-
-
-      conversationId =
-        savedId;
-
-
-      await openConversation(
-        savedId
-      );
-
-    }
-
-
+    /* =========================
+       OPEN CONVERSATION
+    ========================= */
 
     async function openConversation(
       id
     ) {
 
-
       conversationId =
-        id;
+        String(id);
 
 
       localStorage.setItem(
@@ -1109,30 +1296,32 @@
       );
 
 
+      await loadConversation(
+        conversationId
+      );
+
+
       highlightActiveConversation();
 
+      closeSidebarMenu();
 
-      const chat =
-        document.getElementById(
-          "chat"
-        );
+    }
 
 
-      chat.innerHTML = "";
 
+    /* =========================
+       LOAD CONVERSATION
+    ========================= */
 
-      conversation = [];
-
+    async function loadConversation(
+      id
+    ) {
 
       try {
 
-
         const response =
           await fetch(
-            "/api/history?conversationId=" +
-            encodeURIComponent(
-              id
-            )
+            `/api/history?conversationId=${id}`
           );
 
 
@@ -1140,28 +1329,29 @@
           await response.json();
 
 
-        if (!response.ok) {
+        chat.innerHTML = "";
 
 
-          addMessage(
-            "lucy",
-            data.error ||
-            "Could not load this conversation."
-          );
+        conversationMessages =
+          [];
 
+
+        if (
+          !data.messages ||
+          data.messages.length === 0
+        ) {
+
+          showWelcomeMessage();
 
           return;
 
         }
 
 
-        const messages =
-          data.messages || [];
+        data.messages.forEach(
+          message => {
 
-
-        conversation =
-          messages.map(
-            message => ({
+            conversationMessages.push({
 
               role:
                 message.role,
@@ -1169,25 +1359,7 @@
               content:
                 message.content
 
-            })
-          );
-
-
-        if (
-          messages.length === 0
-        ) {
-
-
-          showWelcomeMessage();
-
-
-          return;
-
-        }
-
-
-        messages.forEach(
-          message => {
+            });
 
 
             addMessage(
@@ -1199,21 +1371,14 @@
         );
 
 
-      } catch (
-        error
-      ) {
-
+      } catch (error) {
 
         console.error(
-          "Could not open conversation:",
+          "History loading error:",
           error
         );
 
-
-        addMessage(
-          "lucy",
-          "Could not load this conversation."
-        );
+        showWelcomeMessage();
 
       }
 
@@ -1221,14 +1386,18 @@
 
 
 
-    function startNewChat() {
+    /* =========================
+       NEW CHAT
+    ========================= */
 
+    function startNewChat() {
 
       conversationId =
         null;
 
 
-      conversation = [];
+      conversationMessages =
+        [];
 
 
       localStorage.removeItem(
@@ -1242,99 +1411,166 @@
       highlightActiveConversation();
 
 
-      document
-        .getElementById(
-          "messageInput"
-        )
-        .focus();
+      closeSidebarMenu();
 
     }
 
 
 
-    async function sendMessage() {
+    /* =========================
+       RENAME
+    ========================= */
 
+    async function renameConversation(
+      id,
+      oldTitle
+    ) {
 
-      const input =
-        document.getElementById(
-          "messageInput"
+      const newTitle =
+        prompt(
+          "Rename conversation:",
+          oldTitle
         );
 
 
-      const chat =
-        document.getElementById(
-          "chat"
-        );
-
-
-      const sendButton =
-        document.getElementById(
-          "sendButton"
-        );
-
-
-      const message =
-        input.value.trim();
-
-
-      if (!message) {
+      if (
+        newTitle === null ||
+        !newTitle.trim()
+      ) {
 
         return;
 
       }
 
 
-      const welcomeMessage =
-        document.getElementById(
-          "welcomeMessage"
+      try {
+
+        const response =
+          await fetch(
+            "/api/rename-conversation",
+            {
+
+              method: "PATCH",
+
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+
+              body:
+                JSON.stringify({
+
+                  conversationId:
+                    id,
+
+                  title:
+                    newTitle.trim()
+
+                })
+
+            }
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok) {
+
+          alert(
+            data.error ||
+            "Could not rename conversation."
+          );
+
+          return;
+
+        }
+
+
+        await loadConversations();
+
+
+      } catch (error) {
+
+        console.error(
+          "Rename error:",
+          error
         );
 
 
-      if (welcomeMessage) {
-
-        welcomeMessage.remove();
+        alert(
+          "Could not rename conversation."
+        );
 
       }
 
-
-      addMessage(
-        "user",
-        message
-      );
+    }
 
 
-      input.value = "";
+
+    /* =========================
+       SEND MESSAGE
+    ========================= */
+
+    async function sendMessage() {
+
+      const text =
+        messageInput.value.trim();
+
+
+      if (!text) {
+        return;
+      }
 
 
       sendButton.disabled =
         true;
 
 
-      conversation.push({
+      messageInput.value =
+        "";
+
+
+      messageInput.style.height =
+        "auto";
+
+
+      addMessage(
+        "user",
+        text
+      );
+
+
+      conversationMessages.push({
 
         role: "user",
 
-        content: message
+        content: text
 
       });
 
 
-      const thinkingMessage =
+      const typing =
         document.createElement(
           "div"
         );
 
+      typing.className =
+        "message assistant";
 
-      thinkingMessage.className =
-        "message lucy";
 
-
-      thinkingMessage.textContent =
-        "LUCY is thinking... 🤔";
+      typing.innerHTML = `
+        <div class="typing">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      `;
 
 
       chat.appendChild(
-        thinkingMessage
+        typing
       );
 
 
@@ -1344,7 +1580,6 @@
 
       try {
 
-
         const response =
           await fetch(
             "/api/chat",
@@ -1353,17 +1588,15 @@
               method: "POST",
 
               headers: {
-
                 "Content-Type":
                   "application/json"
-
               },
 
               body:
                 JSON.stringify({
 
                   messages:
-                    conversation,
+                    conversationMessages,
 
                   conversationId:
                     conversationId
@@ -1378,47 +1611,38 @@
           await response.json();
 
 
+        typing.remove();
+
+
         if (!response.ok) {
 
-
-          thinkingMessage.textContent =
+          addMessage(
+            "assistant",
             data.error ||
-            "Something went wrong.";
-
-
-          conversation.pop();
-
+              "Something went wrong."
+          );
 
           return;
 
         }
 
 
-        if (
-          data.conversationId
-        ) {
-
-
-          conversationId =
-            data.conversationId;
-
-
-          localStorage.setItem(
-            "lucyConversationId",
-            conversationId
+        conversationId =
+          String(
+            data.conversationId
           );
 
-        }
+
+        localStorage.setItem(
+          "lucyConversationId",
+          conversationId
+        );
 
 
-        thinkingMessage.textContent =
-          data.reply ||
-          "LUCY didn't receive a response.";
+        conversationMessages.push({
 
-
-        conversation.push({
-
-          role: "assistant",
+          role:
+            "assistant",
 
           content:
             data.reply
@@ -1426,15 +1650,18 @@
         });
 
 
-        await loadConversations();
+        addMessage(
+          "assistant",
+          data.reply
+        );
 
 
-        highlightActiveConversation();
+        loadConversations();
 
 
-      } catch (
-        error
-      ) {
+      } catch (error) {
+
+        typing.remove();
 
 
         console.error(
@@ -1443,64 +1670,96 @@
         );
 
 
-        thinkingMessage.textContent =
-          "Could not reach LUCY's server.";
-
-
-        conversation.pop();
+        addMessage(
+          "assistant",
+          "Sorry, I couldn't connect to LUCY."
+        );
 
       } finally {
-
 
         sendButton.disabled =
           false;
 
-
-        input.focus();
+        messageInput.focus();
 
       }
-
-
-      chat.scrollTop =
-        chat.scrollHeight;
 
     }
 
 
 
-    document
-      .getElementById(
-        "messageInput"
-      )
-      .addEventListener(
-        "keydown",
-        function(event) {
+    /* =========================
+       ENTER TO SEND
+    ========================= */
 
+    messageInput.addEventListener(
+      "keydown",
+      event => {
 
-          if (
-            event.key === "Enter"
-          ) {
+        if (
+          event.key === "Enter" &&
+          !event.shiftKey
+        ) {
 
+          event.preventDefault();
 
-            event.preventDefault();
-
-
-            sendMessage();
-
-          }
+          sendMessage();
 
         }
-      );
+
+      }
+    );
 
 
 
-    loadConversation();
+    /* =========================
+       AUTO RESIZE INPUT
+    ========================= */
 
-    loadConversations();
+    messageInput.addEventListener(
+      "input",
+      () => {
 
+        messageInput.style.height =
+          "auto";
+
+        messageInput.style.height =
+          Math.min(
+            messageInput.scrollHeight,
+            120
+          ) + "px";
+
+      }
+    );
+
+
+
+    /* =========================
+       STARTUP
+    ========================= */
+
+    async function initializeLucy() {
+
+      if (conversationId) {
+
+        await loadConversation(
+          conversationId
+        );
+
+      } else {
+
+        showWelcomeMessage();
+
+      }
+
+      await loadConversations();
+
+    }
+
+
+    initializeLucy();
 
   </script>
-
 
 </body>
 
