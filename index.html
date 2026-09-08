@@ -34,9 +34,10 @@
     }
 
     .header {
-      padding: 20px;
+      padding: 15px 20px;
       text-align: center;
       border-bottom: 1px solid #29293a;
+      position: relative;
     }
 
     .logo {
@@ -48,6 +49,29 @@
       color: #8f8f9f;
       font-size: 13px;
       margin-top: 5px;
+    }
+
+    .new-chat-button {
+      position: absolute;
+      right: 12px;
+      top: 15px;
+
+      padding: 8px 10px;
+
+      border: none;
+      border-radius: 9px;
+
+      background: #292943;
+      color: white;
+
+      font-size: 12px;
+      font-weight: bold;
+
+      cursor: pointer;
+    }
+
+    .new-chat-button:active {
+      transform: scale(0.96);
     }
 
     .chat {
@@ -125,6 +149,13 @@
 
     <div class="header">
 
+      <button
+        class="new-chat-button"
+        onclick="startNewChat()"
+      >
+        ＋ New Chat
+      </button>
+
       <div class="logo">
         LUCY 🤖
       </div>
@@ -173,10 +204,10 @@
 
   <script>
 
-    // Messages currently loaded in the conversation.
+    // Messages currently loaded in this chat.
     let conversation = [];
 
-    // The Supabase conversation ID.
+    // Current Supabase conversation ID.
     let conversationId = null;
 
 
@@ -204,9 +235,26 @@
     }
 
 
+    function showWelcomeMessage() {
+
+      const chat =
+        document.getElementById("chat");
+
+      chat.innerHTML = `
+        <div
+          class="message lucy"
+          id="welcomeMessage"
+        >
+          Hi! I'm LUCY. 👋
+          <br>
+          I'm ready to chat with you.
+        </div>
+      `;
+    }
+
+
     async function loadConversation() {
 
-      // Get the saved conversation ID.
       const savedId =
         localStorage.getItem(
           "lucyConversationId"
@@ -255,7 +303,6 @@
         }
 
 
-        // Remove the default welcome message.
         const welcomeMessage =
           document.getElementById(
             "welcomeMessage"
@@ -266,7 +313,6 @@
         }
 
 
-        // Rebuild the conversation.
         conversation =
           messages.map(message => ({
             role: message.role,
@@ -274,7 +320,6 @@
           }));
 
 
-        // Display saved messages.
         messages.forEach(message => {
 
           addMessage(
@@ -293,6 +338,32 @@
         );
 
       }
+
+    }
+
+
+    function startNewChat() {
+
+      // Forget the current conversation ID.
+      conversationId = null;
+
+      // Clear the local conversation.
+      conversation = [];
+
+      // Remove the saved conversation ID.
+      localStorage.removeItem(
+        "lucyConversationId"
+      );
+
+      // Clear the chat screen.
+      showWelcomeMessage();
+
+      // Put the cursor back in the input.
+      document
+        .getElementById(
+          "messageInput"
+        )
+        .focus();
 
     }
 
@@ -321,7 +392,6 @@
       }
 
 
-      // Remove welcome message if it is still visible.
       const welcomeMessage =
         document.getElementById(
           "welcomeMessage"
@@ -332,7 +402,6 @@
       }
 
 
-      // Display the user's message.
       addMessage(
         "user",
         message
@@ -344,7 +413,6 @@
       sendButton.disabled = true;
 
 
-      // Add the user message locally.
       conversation.push({
 
         role: "user",
@@ -354,7 +422,6 @@
       });
 
 
-      // Show thinking message.
       const thinkingMessage =
         document.createElement("div");
 
@@ -411,14 +478,12 @@
             data.error ||
             "Something went wrong.";
 
-          // Remove failed message from local conversation.
           conversation.pop();
 
           return;
         }
 
 
-        // Save the conversation ID.
         if (data.conversationId) {
 
           conversationId =
@@ -432,13 +497,11 @@
         }
 
 
-        // Show LUCY's response.
         thinkingMessage.textContent =
           data.reply ||
           "LUCY didn't receive a response.";
 
 
-        // Save LUCY's response locally.
         conversation.push({
 
           role: "assistant",
@@ -455,7 +518,6 @@
           "Chat error:",
           error
         );
-
 
         thinkingMessage.textContent =
           "Could not reach LUCY's server.";
@@ -477,7 +539,6 @@
     }
 
 
-    // Send with the Enter key.
     document
       .getElementById(
         "messageInput"
